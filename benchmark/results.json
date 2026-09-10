@@ -1,0 +1,374 @@
+{
+  "breast-cancer": {
+    "name": "breast-cancer",
+    "task": "classification",
+    "metric": "auc",
+    "source": "sklearn:breast_cancer",
+    "note": "",
+    "n_train": 455,
+    "n_test": 114,
+    "n_features": 30,
+    "ours_fast": {
+      "holdout": 0.9894179894179894,
+      "cv": 0.9949638802889577,
+      "sec": 24.035826683044434
+    },
+    "ours_full": {
+      "holdout": 0.9930555555555556,
+      "cv": 0.9947987616099072,
+      "sec": 226.69641661643982
+    },
+    "baseline": {
+      "holdout": 0.9897486772486772,
+      "cv": 0.9921775025799793,
+      "sec": 0.9688169956207275
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "wine-multiclass": {
+    "name": "wine-multiclass",
+    "task": "classification",
+    "metric": "logloss",
+    "source": "sklearn:wine",
+    "note": "",
+    "n_train": 142,
+    "n_test": 36,
+    "n_features": 13,
+    "ours_fast": {
+      "holdout": 0.04841860962582903,
+      "cv": 0.10539603979947179,
+      "sec": 14.667001962661743
+    },
+    "ours_full": {
+      "holdout": 0.04406847282282485,
+      "cv": 0.05822820978477181,
+      "sec": 348.01450395584106
+    },
+    "baseline": {
+      "holdout": 0.012626722759161149,
+      "cv": 0.05490821715228169,
+      "sec": 0.7443053722381592
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "diabetes-reg": {
+    "name": "diabetes-reg",
+    "task": "regression",
+    "metric": "rmse",
+    "source": "sklearn:diabetes",
+    "note": "",
+    "n_train": 353,
+    "n_test": 89,
+    "n_features": 10,
+    "ours_fast": {
+      "holdout": 51.418966018556134,
+      "cv": 56.82498686318731,
+      "sec": 6.434788942337036
+    },
+    "ours_full": {
+      "holdout": 51.21273765399879,
+      "cv": 57.31804914117513,
+      "sec": 44.67886471748352
+    },
+    "baseline": {
+      "holdout": 56.57522331808906,
+      "cv": 59.660286882845554,
+      "sec": 0.36189937591552734
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "telco-churn": {
+    "name": "telco-churn",
+    "task": "classification",
+    "metric": "auc",
+    "source": "kaggle:blastchar/telco-customer-churn",
+    "note": "mixed types, a numeric column stored as text, mild imbalance",
+    "n_train": 5634,
+    "n_test": 1409,
+    "n_features": 19,
+    "ours_fast": {
+      "holdout": 0.8428143325841535,
+      "cv": 0.8468263786593145,
+      "sec": 47.91912770271301
+    },
+    "baseline": {
+      "holdout": 0.8242630912707639,
+      "cv": 0.8344812094110916,
+      "sec": 2.817270517349243
+    },
+    "leaky": {
+      "holdout": 0.7247268077191352,
+      "cv": 0.9987053567460513,
+      "sec": 2.6391983032226562
+    }
+  },
+  "pima-diabetes": {
+    "name": "pima-diabetes",
+    "task": "classification",
+    "metric": "auc",
+    "source": "openml:diabetes",
+    "note": "the Pima diabetes dataset. The Kaggle copy (uciml/pima-indians-diabetes-database) was removed, so this pulls the same data from OpenML, which needs no credentials.\n",
+    "n_train": 614,
+    "n_test": 154,
+    "n_features": 8,
+    "ours_fast": {
+      "holdout": 0.8233333333333333,
+      "cv": 0.8277920560747664,
+      "sec": 7.409041166305542
+    },
+    "baseline": {
+      "holdout": 0.817962962962963,
+      "cv": 0.7884696261682244,
+      "sec": 1.0762481689453125
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "heart-failure": {
+    "name": "heart-failure",
+    "task": "classification",
+    "metric": "auc",
+    "source": "kaggle:fedesoriano/heart-failure-prediction",
+    "note": "",
+    "n_train": 734,
+    "n_test": 184,
+    "n_features": 11,
+    "ours_fast": {
+      "holdout": 0.9300573888091822,
+      "cv": 0.9337979094076655,
+      "sec": 22.00220775604248
+    },
+    "baseline": {
+      "holdout": 0.9250358680057389,
+      "cv": 0.9220758740838639,
+      "sec": 0.9756083488464355
+    },
+    "leaky": {
+      "holdout": 0.9306551889048302,
+      "cv": 0.9200783972125436,
+      "sec": 1.3692378997802734
+    }
+  },
+  "bank-marketing": {
+    "name": "bank-marketing",
+    "task": "classification",
+    "metric": "auc",
+    "source": "kaggle:janiobachmann/bank-marketing-dataset",
+    "note": "many categoricals",
+    "n_train": 8929,
+    "n_test": 2233,
+    "n_features": 16,
+    "ours_fast": {
+      "holdout": 0.9317950368016732,
+      "cv": 0.9281417770416593,
+      "sec": 84.27082014083862
+    },
+    "baseline": {
+      "holdout": 0.9258858544825644,
+      "cv": 0.9238783577476911,
+      "sec": 2.261967897415161
+    },
+    "leaky": {
+      "holdout": 0.9279580098942203,
+      "cv": 0.9240420625843488,
+      "sec": 2.7254483699798584
+    }
+  },
+  "credit-g": {
+    "name": "credit-g",
+    "task": "classification",
+    "metric": "auc",
+    "source": "openml:credit-g",
+    "note": "openml fallback, no Kaggle credentials needed",
+    "n_train": 800,
+    "n_test": 200,
+    "n_features": 20,
+    "ours_fast": {
+      "holdout": 0.7779761904761905,
+      "cv": 0.78828125,
+      "sec": 37.141627073287964
+    },
+    "baseline": {
+      "holdout": 0.7736904761904762,
+      "cv": 0.7667410714285714,
+      "sec": 1.8577818870544434
+    },
+    "leaky": {
+      "holdout": 0.7582142857142858,
+      "cv": 0.7739062500000001,
+      "sec": 1.8380134105682373
+    }
+  },
+  "adult-income": {
+    "name": "adult-income",
+    "task": "classification",
+    "metric": "auc",
+    "source": "openml:adult",
+    "note": "48k rows, high-cardinality categoricals",
+    "n_train": 39073,
+    "n_test": 9769,
+    "n_features": 14,
+    "ours_fast": {
+      "holdout": 0.9170287373807666,
+      "cv": 0.9138822073404411,
+      "sec": 168.7459568977356
+    },
+    "baseline": {
+      "holdout": 0.9146759828287365,
+      "cv": 0.9119124256346968,
+      "sec": 4.343546152114868
+    },
+    "leaky": {
+      "holdout": 0.9151779202998928,
+      "cv": 0.9124513139523758,
+      "sec": 3.9787871837615967
+    }
+  },
+  "wine-quality-red": {
+    "name": "wine-quality-red",
+    "task": "classification",
+    "metric": "logloss",
+    "source": "kaggle:uciml/red-wine-quality-cortez-et-al-2009",
+    "note": "multiclass with rare classes",
+    "n_train": 1279,
+    "n_test": 320,
+    "n_features": 11,
+    "ours_fast": {
+      "holdout": 0.8645875177773892,
+      "cv": 0.8598183946958162,
+      "sec": 16.844892740249634
+    },
+    "baseline": {
+      "holdout": 1.1900837701871723,
+      "cv": 1.2656365701276235,
+      "sec": 6.211344003677368
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "insurance-charges": {
+    "name": "insurance-charges",
+    "task": "regression",
+    "metric": "rmse",
+    "source": "kaggle:mirichoi0218/insurance",
+    "note": "",
+    "n_train": 1070,
+    "n_test": 268,
+    "n_features": 6,
+    "ours_fast": {
+      "holdout": 4412.869371775494,
+      "cv": 4818.594445330334,
+      "sec": 21.98038387298584
+    },
+    "baseline": {
+      "holdout": 4546.107607546178,
+      "cv": 4971.4073695357,
+      "sec": 0.8175647258758545
+    },
+    "leaky": {
+      "holdout": 4554.091834023582,
+      "cv": 4972.960406937141,
+      "sec": 1.1923017501831055
+    }
+  },
+  "california-housing": {
+    "name": "california-housing",
+    "task": "regression",
+    "metric": "rmse",
+    "source": "sklearn:california_housing",
+    "note": "20k rows, all numeric",
+    "n_train": 16512,
+    "n_test": 4128,
+    "n_features": 8,
+    "ours_fast": {
+      "holdout": 0.434554602930635,
+      "cv": 0.44965252805399036,
+      "sec": 31.67328429222107
+    },
+    "baseline": {
+      "holdout": 0.46351720797890145,
+      "cv": 0.4704905392514172,
+      "sec": 4.773064136505127
+    },
+    "leaky": {
+      "error": "ValueError: no categorical columns \u2014 identical to baseline"
+    }
+  },
+  "kc-house-sales": {
+    "name": "kc-house-sales",
+    "task": "regression",
+    "metric": "rmse",
+    "source": "kaggle:harlfoxem/housesalesprediction",
+    "note": "skewed target, a date column",
+    "n_train": 17290,
+    "n_test": 4323,
+    "n_features": 19,
+    "ours_fast": {
+      "holdout": 114360.32123775176,
+      "cv": 114534.38059259343,
+      "sec": 37.40386152267456
+    },
+    "baseline": {
+      "holdout": 134189.47184921312,
+      "cv": 123432.06500418064,
+      "sec": 3.012364625930786
+    },
+    "leaky": {
+      "holdout": 137715.58021993522,
+      "cv": 124417.33365739668,
+      "sec": 2.9971508979797363
+    }
+  },
+  "air-passengers": {
+    "name": "air-passengers",
+    "task": "forecast",
+    "metric": "rmse",
+    "source": "kaggle:rakannimer/air-passengers",
+    "note": "single monthly series, strong trend and seasonality",
+    "horizon": 12,
+    "n_series": 1,
+    "n_train": 132,
+    "n_test": 12,
+    "n_features": 1,
+    "ours_fast": {
+      "holdout": 50.708316214732804,
+      "cv": 49.25444142409901,
+      "sec": 0.5013840198516846
+    },
+    "baseline": {
+      "holdout": 50.708316214732804,
+      "cv": null,
+      "sec": 0.0
+    }
+  },
+  "product-demand": {
+    "name": "product-demand",
+    "task": "forecast",
+    "metric": "rmse",
+    "source": "kaggle:felixzhao/productdemandforecasting",
+    "note": "messy, multi-series, needs aggregating by day",
+    "horizon": 30,
+    "n_series": 33,
+    "n_train": 11824,
+    "n_test": 444,
+    "n_features": 2,
+    "ours_fast": {
+      "holdout": 332397.3462695382,
+      "cv": 323826.76020086143,
+      "sec": 20.06961226463318
+    },
+    "baseline": {
+      "holdout": 639052.268030935,
+      "cv": null,
+      "sec": 0.0
+    }
+  }
+}

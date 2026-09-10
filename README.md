@@ -35,6 +35,15 @@ leaky    0.8996     0.5344     +0.3651
 
 The leaky row is target encoding fitted before the split — the ordinary shortcut. It reports a cross-validated AUC of 0.90 and delivers 0.53 on data it has not seen. The honest row reports 0.62 and delivers 0.62.
 
+The same thing happens on real data, and the benchmark measures it. On the Telco customer-churn dataset, one column (`TotalCharges`) is a number stored as text, so it reads as ~6500 distinct categories. Target-encode that on the whole training set and:
+
+| | cv auc | held-out auc | gap |
+|---|---|---|---|
+| leaky shortcut | 0.9987 | 0.7247 | **+0.274** |
+| this pipeline | 0.8468 | 0.8428 | +0.004 |
+
+The shortcut reports a near-perfect model and delivers one barely better than guessing. Nothing about that dataset is unusual; a text-formatted number is the most ordinary data-quality problem there is.
+
 The example datasets have a known signal planted in them too. On the regression example the held-out R² is ≈0.72 against truth the pipeline never saw; on the forecast example the model's test RMSE is ≈6.0 against ≈13.7 for a last-value naive baseline. Both scripts that build the data are in `examples/`.
 
 ---
@@ -216,19 +225,48 @@ Things this does not do, and places where it is weak:
 - **Four task types only.** No NLP, no multi-label classification, no segmentation, no object detection, no recommendation, no ranking.
 - **`task: auto` is a heuristic** and gets edge cases wrong. It prints what it decided so you can catch it; override it by writing `task` explicitly.
 - **High-cardinality target encoding falls back to ordinal encoding for multiclass problems.** The binary path is the good one; multiclass gets a cruder feature, and that is a real gap rather than a design choice.
-- **Never measured against another AutoML tool.** No comparison against AutoGluon, FLAML or anything else has been run, so there is no claim here about accuracy or speed relative to any of them. `benchmark/` compares this pipeline against a plain single-LightGBM baseline on public datasets; that is the only comparison that exists.
+- **Never measured against another AutoML tool.** No comparison against AutoGluon, FLAML or anything else has been run, so there is no claim here about accuracy or speed relative to any of them. The benchmark compares this pipeline against a plain single-LightGBM baseline; that is the only comparison that exists.
+- **On small, clean, all-numeric data a single LightGBM can beat it**, and on one benchmark dataset it does, clearly. The machinery here is aimed at messy data; on 142 tidy rows it is overhead.
+- **15 datasets is a small sample**, all of them tabular or short time series, all scored on one held-out split with one seed. Nothing here is a significance test.
 - **The blend is a random Dirichlet search**, not stacking. It is cheap and it usually helps; it is not the strongest thing available.
 - **Column-name heuristics are English-leaning** (with a few Turkish date keywords). Set columns explicitly if yours are named unusually.
 - **No test suite.** The examples are the check: four configs that run end to end on synthetic data with a known signal.
 
 ## Benchmark
 
-`benchmark/` holds the measurement code: public datasets, a 20% held-out split,
-and the same split given to this pipeline (both presets) and to a single
-LightGBM with default parameters. Every system's own cross-validated estimate is
-recorded next to its held-out score, so an optimistic pipeline is visible rather
-than flattered. See [benchmark/README.md](benchmark/README.md) for how to run it,
-and `benchmark/colab_benchmark.ipynb` for the GPU parts.
+15 public datasets from Kaggle, OpenML and scikit-learn. For each one, 20% of the rows are held out (the last *H* dates for time series) and nothing is trained on them. The same split is given to this pipeline and to a single LightGBM with default parameters, ordinal-encoded categoricals and median-imputed numerics.
+
+The fast preset — a couple of minutes per dataset on a laptop CPU — **wins 12, loses 2, ties 1.**
+
+| dataset | rows | metric | ours-fast | baseline | leaky |
+|---|---|---|---|---|---|
+| telco-churn | 5 634 | auc ↑ | **0.8428** | 0.8243 | 0.7247 |
+| pima-diabetes | 614 | auc ↑ | **0.8233** | 0.8180 | — |
+| heart-failure | 734 | auc ↑ | 0.9301 | 0.9250 | **0.9307** |
+| bank-marketing | 8 929 | auc ↑ | **0.9318** | 0.9259 | 0.9280 |
+| credit-g | 800 | auc ↑ | **0.7780** | 0.7737 | 0.7582 |
+| adult-income | 39 073 | auc ↑ | **0.9170** | 0.9147 | 0.9152 |
+| breast-cancer | 455 | auc ↑ | 0.9894 | **0.9897** | — |
+| wine-multiclass | 142 | logloss ↓ | 0.0484 | **0.0126** | — |
+| wine-quality-red | 1 279 | logloss ↓ | **0.8646** | 1.1901 | — |
+| insurance-charges | 1 070 | rmse ↓ | **4 412.9** | 4 546.1 | 4 554.1 |
+| california-housing | 16 512 | rmse ↓ | **0.4346** | 0.4635 | — |
+| kc-house-sales | 17 290 | rmse ↓ | **114 360** | 134 189 | 137 716 |
+| diabetes-reg | 353 | rmse ↓ | **51.42** | 56.58 | — |
+| air-passengers | 132 | rmse ↓ | 50.71 | 50.71 | — |
+| product-demand | 11 824 | rmse ↓ | **332 397** | 639 052 | — |
+
+`leaky` is the same single LightGBM with target encoding fitted on the whole training set; `—` means the dataset has no categorical columns, so that variant is identical to the baseline.
+
+Three things in that table are worth more than the win count:
+
+**The score it reports is close to the score it delivers.** Across the seven AUC datasets, the gap between the cross-validated estimate and the held-out result is at most 0.010 and typically 0.004, in both directions. A pipeline whose CV you cannot trust is worse than a weaker one you can, because the CV number is what you pick your submission with.
+
+**The `air-passengers` tie is the engine working, not failing.** On a 132-point single series the gradient-boosted model loses to a seasonal-naive baseline in time-based validation, so the engine selects the baseline and forecasts with it. The tie is that decision.
+
+**Where it loses.** `wine-multiclass` is a real loss: 142 rows, 3 classes, 13 numeric columns, and a single LightGBM is roughly four times better on log loss. `breast-cancer` is a loss by 0.0003 AUC, which is noise, and it reverses under the full preset (0.9931). The pattern is that on small, clean, all-numeric problems the fold-safe encoding, the three-model blend and the weight search buy nothing and add variance. The wins concentrate where data is messy: categoricals, high cardinality, skewed targets, many series.
+
+Reproducing it: [benchmark/README.md](benchmark/README.md). Full tables including every CV-vs-held-out gap: [benchmark/RESULTS.md](benchmark/RESULTS.md). The GPU parts run from `benchmark/colab_benchmark.ipynb`.
 
 ## Prior art
 

@@ -25,12 +25,14 @@ datasets:
     note: mixed types, a numeric column stored as text, mild imbalance
 
   - name: pima-diabetes
-    source: kaggle:uciml/pima-indians-diabetes-database
-    file: diabetes.csv
+    source: openml:diabetes
     task: classification
-    target: Outcome
+    target: class
     metric: auc
-    note: small, all numeric
+    note: >
+      the Pima diabetes dataset. The Kaggle copy
+      (uciml/pima-indians-diabetes-database) was removed, so this pulls the
+      same data from OpenML, which needs no credentials.
 
   - name: heart-failure
     source: kaggle:fedesoriano/heart-failure-prediction

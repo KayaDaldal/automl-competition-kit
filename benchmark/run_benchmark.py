@@ -601,6 +601,61 @@ def fmt(v, nd=4):
     return ("%%.%df" % nd) % v
 
 
+def _headline(rows):
+    """Win/loss tally and the worst optimism gap, computed from the rows."""
+    higher = ("auc", "accuracy")
+    win = loss = tie = 0
+    detail = []
+    for r in rows:
+        o = (r.get("ours_fast") or {}).get("holdout")
+        b = (r.get("baseline") or {}).get("holdout")
+        if o is None or b is None:
+            continue
+        hi = r["metric"] in higher
+        if abs(o - b) < 1e-9:
+            tie += 1
+            detail.append((r["name"], "tie"))
+        elif (o > b) == hi:
+            win += 1
+        else:
+            loss += 1
+            detail.append((r["name"], "loss"))
+
+    worst = None
+    for r in rows:
+        lk = r.get("leaky") or {}
+        if "error" in lk or lk.get("cv") is None or lk.get("holdout") is None:
+            continue
+        hi = r["metric"] in higher
+        gap = (lk["cv"] - lk["holdout"]) if hi else (lk["holdout"] - lk["cv"])
+        # Compare optimism across metrics on a common footing: an RMSE gap of
+        # 13000 and an AUC gap of 0.27 are not comparable in absolute terms.
+        rel = gap / abs(lk["holdout"]) if lk["holdout"] else 0.0
+        if worst is None or rel > worst[2]:
+            worst = (r, gap, rel)
+
+    out = ["", "## Headline", "",
+           "Fast preset against a single default LightGBM, on the held-out split:",
+           "**%d wins, %d losses, %d tie** across %d datasets."
+           % (win, loss, tie, win + loss + tie)]
+    if detail:
+        out.append("Not a win on: " + ", ".join("%s (%s)" % d for d in detail) + ".")
+    if worst is not None:
+        r, gap, rel = worst
+        lk, o = r["leaky"], (r.get("ours_fast") or {})
+        out += ["",
+                "Worst case for the leaky shortcut, on **%s**: it reports a "
+                "cross-validated %s of %s and delivers %s on unseen rows "
+                "(gap %s, %.0f%% optimistic). The same split through this "
+                "pipeline: %s reported, "
+                "%s delivered (gap %s)."
+                % (r["name"], r["metric"], fmt(lk["cv"]), fmt(lk["holdout"]),
+                   fmt(gap), 100 * rel, fmt(o.get("cv")), fmt(o.get("holdout")),
+                   fmt((o["cv"] - o["holdout"]) if r["metric"] in higher
+                       else (o["holdout"] - o["cv"])))]
+    return out
+
+
 def write_markdown(res):
     rows = [r for r in res.values() if "error" not in r]
     lines = ["# Benchmark results", "",
@@ -627,6 +682,8 @@ def write_markdown(res):
             cell("ours_fast"), cell("ours_full"), cell("baseline"), cell("leaky"),
             fmt((r.get("ours_fast") or {}).get("sec"), 1),
             fmt((r.get("ours_full") or {}).get("sec"), 1)))
+
+    lines += _headline(rows)
 
     lines += ["", "## CV vs held-out gap", "",
               "How far each system's own cross-validated estimate was from the truth.",
@@ -709,6 +766,22 @@ def verify_slugs(specs):
 # ==========================================================================
 # main
 # ==========================================================================
+def _already_done(rec, args):
+    """True when a previous run covered everything this run would add.
+
+    A dataset finished with --skip-full is not done once the full preset is
+    asked for, so a second pass fills in the missing half instead of needing
+    --force and redoing the cheap half as well.
+    """
+    if "error" in rec:
+        return False
+    if "ours_fast" not in rec:
+        return False
+    if not args.skip_full and "ours_full" not in rec:
+        return False
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -753,7 +826,8 @@ def main():
     res = load_results()
     started = time.time()
     for spec in specs:
-        if spec["name"] in res and not args.force:
+        prev = res.get(spec["name"])
+        if prev is not None and not args.force and _already_done(prev, args):
             print("skip %s (already in results.json — use --force to redo)" % spec["name"])
             continue
         try:
