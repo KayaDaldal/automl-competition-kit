@@ -1,0 +1,144 @@
+# Benchmark datasets.
+#
+# Each entry says where the data comes from, what the target is, and how to
+# score it. Anything that fails to download is reported and skipped, so a bad
+# slug costs one row of the table, not the run.
+#
+# source:
+#   kaggle:<owner>/<slug>   needs the kaggle package + ~/.kaggle/kaggle.json
+#   openml:<name>           via sklearn.datasets.fetch_openml, no credentials
+#   sklearn:<loader>        bundled with scikit-learn, works offline
+#
+# task:   classification | regression | forecast
+# metric: auc | logloss | accuracy | rmse | mae
+
+datasets:
+
+  # ---------------- binary classification ----------------
+  - name: telco-churn
+    source: kaggle:blastchar/telco-customer-churn
+    file: WA_Fn-UseC_-Telco-Customer-Churn.csv
+    task: classification
+    target: Churn
+    drop: [customerID]
+    metric: auc
+    note: mixed types, a numeric column stored as text, mild imbalance
+
+  - name: pima-diabetes
+    source: kaggle:uciml/pima-indians-diabetes-database
+    file: diabetes.csv
+    task: classification
+    target: Outcome
+    metric: auc
+    note: small, all numeric
+
+  - name: heart-failure
+    source: kaggle:fedesoriano/heart-failure-prediction
+    file: heart.csv
+    task: classification
+    target: HeartDisease
+    metric: auc
+
+  - name: bank-marketing
+    source: kaggle:janiobachmann/bank-marketing-dataset
+    file: bank.csv
+    task: classification
+    target: deposit
+    metric: auc
+    note: many categoricals
+
+  - name: credit-g
+    source: openml:credit-g
+    task: classification
+    target: class
+    metric: auc
+    note: openml fallback, no Kaggle credentials needed
+
+  - name: adult-income
+    source: openml:adult
+    task: classification
+    target: class
+    metric: auc
+    note: 48k rows, high-cardinality categoricals
+
+  # ---------------- multiclass ----------------
+  - name: wine-quality-red
+    source: kaggle:uciml/red-wine-quality-cortez-et-al-2009
+    file: winequality-red.csv
+    task: classification
+    target: quality
+    metric: logloss
+    note: multiclass with rare classes
+
+  # ---------------- regression ----------------
+  - name: insurance-charges
+    source: kaggle:mirichoi0218/insurance
+    file: insurance.csv
+    task: regression
+    target: charges
+    metric: rmse
+
+  - name: california-housing
+    source: sklearn:california_housing
+    task: regression
+    target: MedHouseVal
+    metric: rmse
+    note: 20k rows, all numeric
+
+  - name: kc-house-sales
+    source: kaggle:harlfoxem/housesalesprediction
+    file: kc_house_data.csv
+    task: regression
+    target: price
+    drop: [id]
+    date_like: [date]
+    metric: rmse
+    note: skewed target, a date column
+
+  # ---------------- time series ----------------
+  - name: air-passengers
+    source: kaggle:rakannimer/air-passengers
+    file: AirPassengers.csv
+    task: forecast
+    target: "#Passengers"
+    date: Month
+    horizon: 12
+    season_period: 12
+    metric: rmse
+    note: single monthly series, strong trend and seasonality
+
+  - name: product-demand
+    source: kaggle:felixzhao/productdemandforecasting
+    file: Historical Product Demand.csv
+    task: forecast
+    target: Order_Demand
+    date: Date
+    group: [Product_Category]
+    horizon: 30
+    season_period: 7
+    metric: rmse
+    note: messy, multi-series, needs aggregating by day
+
+  # ---------------- offline smoke checks ----------------
+  # These need no network at all. Useful to prove the harness itself works
+  # before spending time on downloads.
+  - name: breast-cancer
+    source: sklearn:breast_cancer
+    task: classification
+    target: target
+    metric: auc
+    offline: true
+
+  - name: wine-multiclass
+    source: sklearn:wine
+    task: classification
+    target: target
+    metric: logloss
+    offline: true
+
+  - name: diabetes-reg
+    source: sklearn:diabetes
+    task: regression
+    target: target
+    metric: rmse
+    offline: true

@@ -25,7 +25,17 @@ A rolling mean computed with the current row inside its own window is a leak tha
 
 Two smaller ones, for the same reason: blend weights are searched on out-of-fold predictions only, and the binary decision threshold for accuracy/F1 is picked on out-of-fold predictions rather than on the fold each model was validated against.
 
-The example datasets have a known signal planted in them, so you can check this rather than take my word for it. On the regression example the held-out R² is ≈0.72 against truth the pipeline never saw; on the forecast example the model's test RMSE is ≈6.0 against ≈13.7 for a last-value naive baseline. Both scripts that build the data are in `examples/`.
+You can check all of this rather than take my word for it. `python benchmark/leakage_demo.py` takes half a minute, needs no downloads, and prints the difference between the two approaches on a dataset with a known answer:
+
+```
+         cv auc     holdout    gap
+honest   0.6234     0.6202     +0.0033
+leaky    0.8996     0.5344     +0.3651
+```
+
+The leaky row is target encoding fitted before the split — the ordinary shortcut. It reports a cross-validated AUC of 0.90 and delivers 0.53 on data it has not seen. The honest row reports 0.62 and delivers 0.62.
+
+The example datasets have a known signal planted in them too. On the regression example the held-out R² is ≈0.72 against truth the pipeline never saw; on the forecast example the model's test RMSE is ≈6.0 against ≈13.7 for a last-value naive baseline. Both scripts that build the data are in `examples/`.
 
 ---
 
@@ -206,10 +216,19 @@ Things this does not do, and places where it is weak:
 - **Four task types only.** No NLP, no multi-label classification, no segmentation, no object detection, no recommendation, no ranking.
 - **`task: auto` is a heuristic** and gets edge cases wrong. It prints what it decided so you can catch it; override it by writing `task` explicitly.
 - **High-cardinality target encoding falls back to ordinal encoding for multiclass problems.** The binary path is the good one; multiclass gets a cruder feature, and that is a real gap rather than a design choice.
-- **Never measured on a public benchmark.** No comparison against AutoGluon, FLAML or anything else has been run. There is no claim here about accuracy or speed relative to any other tool, because there is no measurement to back one.
+- **Never measured against another AutoML tool.** No comparison against AutoGluon, FLAML or anything else has been run, so there is no claim here about accuracy or speed relative to any of them. `benchmark/` compares this pipeline against a plain single-LightGBM baseline on public datasets; that is the only comparison that exists.
 - **The blend is a random Dirichlet search**, not stacking. It is cheap and it usually helps; it is not the strongest thing available.
 - **Column-name heuristics are English-leaning** (with a few Turkish date keywords). Set columns explicitly if yours are named unusually.
 - **No test suite.** The examples are the check: four configs that run end to end on synthetic data with a known signal.
+
+## Benchmark
+
+`benchmark/` holds the measurement code: public datasets, a 20% held-out split,
+and the same split given to this pipeline (both presets) and to a single
+LightGBM with default parameters. Every system's own cross-validated estimate is
+recorded next to its held-out score, so an optimistic pipeline is visible rather
+than flattered. See [benchmark/README.md](benchmark/README.md) for how to run it,
+and `benchmark/colab_benchmark.ipynb` for the GPU parts.
 
 ## Prior art
 

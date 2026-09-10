@@ -32,3 +32,8 @@ secrets.*
 *.pem
 *.key
 kaggle.json
+
+# Benchmark: downloaded data and per-run outputs
+benchmark/data/
+benchmark/out/
+benchmark/_env.json
