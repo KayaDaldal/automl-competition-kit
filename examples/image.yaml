@@ -1,0 +1,32 @@
+# Image classification from a folder tree (one sub-folder per class).
+#
+# Needs the extra dependencies and, in practice, a GPU:
+#   pip install -r requirements-image.txt
+#   python examples/generate_data.py --image
+#   automl run examples/image.yaml
+#
+# The example dataset is generated rather than committed, because binary blobs
+# do not belong in a repo.
+
+task: image
+
+data:
+  train: data/image/train      # data/image/train/<class name>/*.jpg
+  test: data/image/test
+
+run:
+  preset: fast
+  metric: logloss              # logloss | accuracy
+  folds: 2
+  seed: 42
+  out_dir: out/image
+  download: false
+  positive_class: bright
+
+model:
+  img_size: 64                 # tiny, because the example images are 48x48
+  batch_size: 16
+  epochs: 2
+  backbone: tf_efficientnet_b0_ns   # or `auto` to pick by data size and hardware
+  pretrained: false            # true downloads ImageNet weights and scores much better
+  num_workers: 0

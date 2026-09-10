@@ -1,0 +1,22 @@
+# Tabular classification: predict a binary target from mixed numeric,
+# categorical, high-cardinality and date columns.
+#
+#   automl run examples/classification.yaml
+
+task: classification
+
+data:
+  train: data/classification_train.csv
+  test: data/classification_test.csv
+  target: target
+  id: id
+
+run:
+  preset: fast          # fast finishes in about a minute; full is the heavy mode
+  metric: auc           # logloss | accuracy | f1 | auc
+  folds: 3
+  seed: 42
+  out_dir: out/classification
+  download: false       # only relevant inside Colab
+  positive_class: "1"
+  submission_example: data/classification_example.csv

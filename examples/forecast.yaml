@@ -1,0 +1,26 @@
+# Time series: four daily store series, 14 days into the future.
+# Validation is the last 14 days of the training data, never a random split.
+#
+#   automl run examples/forecast.yaml
+
+task: forecast
+
+data:
+  train: data/forecast_train.csv
+  test: data/forecast_test.csv
+  target: sales
+  date: date
+  group: [store]        # omit for a single series
+  id: id
+
+run:
+  preset: fast
+  metric: rmse          # rmse | mae | rmsle | smape
+  horizon: 14
+  strategy: auto        # auto | recursive | direct
+  cv_scheme: holdout    # holdout | expanding
+  season_period: 7      # period of the seasonal-naive baseline
+  seed: 42
+  out_dir: out/forecast
+  download: false
+  submission_example: data/forecast_example.csv

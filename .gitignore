@@ -1,0 +1,34 @@
+# Run outputs
+out/
+*.log
+
+# The example image dataset is generated, not committed
+examples/data/image/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+.venv/
+venv/
+env/
+
+# Notebooks / editors / OS
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+
+# Library scratch files
+catboost_info/
+
+# Never commit these
+*.env
+.env
+secrets.*
+*.pem
+*.key
+kaggle.json

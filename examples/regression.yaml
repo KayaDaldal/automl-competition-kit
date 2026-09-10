@@ -1,0 +1,23 @@
+# Tabular regression: a skewed, log-normal target. `log_target: auto` detects
+# the skew and fits on log1p, then reverses it before scoring.
+#
+#   automl run examples/regression.yaml
+
+task: regression
+
+data:
+  train: data/regression_train.csv
+  test: data/regression_test.csv
+  target: price
+  id: id
+
+run:
+  preset: fast
+  metric: rmse          # rmse | mae | rmsle | r2
+  folds: 3
+  seed: 42
+  out_dir: out/regression
+  download: false
+  log_target: auto      # auto | true | false
+  non_negative: auto    # clip predictions at zero when the target never goes below it
+  submission_example: data/regression_example.csv
